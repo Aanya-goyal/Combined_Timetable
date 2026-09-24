@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Group Free Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --ink: #121417;
+            --panel: #1B1E22;
+            --panel-2: #20242A;
+            --panel-3: #262B32;
+            --text: #EFEDE7;
+            --muted: #8D8E88;
+            --free: #5C8A5C;
+            --free-soft: rgba(92, 138, 92, .22);
+            --line: rgba(255, 255, 255, .09);
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root:not([data-theme="dark"]) {
+                --ink: #F3F0E8;
+                --panel: #FFFFFF;
+                --panel-2: #EDEAE0;
+                --panel-3: #E4E0D3;
+                --text: #1B1E22;
+                --muted: #75766F;
+                --line: rgba(0, 0, 0, .09);
+                --free-soft: rgba(92, 138, 92, .16);
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --ink: #121417;
+            --panel: #1B1E22;
+            --panel-2: #20242A;
+            --panel-3: #262B32;
+            --text: #EFEDE7;
+            --muted: #8D8E88;
+            --line: rgba(255, 255, 255, .09);
+        }
+
+        html {
+            scroll-padding-top: env(safe-area-inset-top, 0px);
+            height: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100%;
+            background: var(--ink);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 44px 24px 70px;
+        }
+
+        .kicker {
+            font-size: 13px;
+            color: var(--free);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(28px, 3.6vw, 40px);
+            line-height: 1.08;
+            margin: 0 0 10px;
+        }
+
+        p.lede {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 60ch;
+            margin: 0 0 32px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 290px 1fr;
+            gap: 26px;
+            align-items: start;
+        }
+
+        @media (max-width:860px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .panel h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 14px;
+        }
+
+        .members {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-bottom: 22px;
+        }
+
+        .m-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .m-row:hover {
+            background: var(--panel-2);
+        }
+
+        .m-row input {
+            accent-color: var(--free);
+            width: 15px;
+            height: 15px;
+            flex: none;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex: none;
+        }
+
+        .m-row span.name {
+            font-size: 14px;
+        }
+
+        .groupform {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .groupform input {
+            flex: 1;
+            background: var(--panel-2);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 9px 10px;
+            color: var(--text);
+            font-family: 'Inter';
+            font-size: 13.5px;
+        }
+
+        .groupform input::placeholder {
+            color: var(--muted);
+        }
+
+        .btn {
+            background: var(--free);
+            color: #0F1610;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-weight: 600;
+            font-size: 13.5px;
+            cursor: pointer;
+            font-family: 'Inter';
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            filter: brightness(1.08);
+        }
+
+        .btn.ghost {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--text);
+        }
+
+        .saved {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .g-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--panel-2);
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+
+        .g-row .g-name {
+            flex: 1;
+            font-size: 13.5px;
+            cursor: pointer;
+        }
+
+        .g-row .g-name:hover {
+            color: var(--free);
+        }
+
+        .g-row button {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 1;
+            padding: 2px 4px;
+        }
+
+        .g-row button:hover {
+            color: #C9552F;
+        }
+
+        .empty {
+            color: var(--muted);
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .results .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .stat .num {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(42px, 5.5vw, 60px);
+            line-height: 1;
+            color: var(--free);
+            font-weight: 600;
+        }
+
+        .stat .lbl {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .group-label {
+            font-size: 13.5px;
+            color: var(--muted);
+        }
+
+        .group-label b {
+            color: var(--text);
+        }
+
+        .heat {
+            overflow-x: auto;
+        }
+
+        .heat table {
+            border-collapse: separate;
+            border-spacing: 5px;
+            width: 100%;
+            min-width: 640px;
+        }
+
+        .heat th {
+            font-weight: 500;
+            font-size: 11px;
+            color: var(--muted);
+            padding-bottom: 8px;
+            text-align: center;
+        }
+
+        .heat td.dayname {
+            font-family: 'Fraunces', serif;
+            font-size: 14.5px;
+            font-weight: 600;
+            white-space: nowrap;
+            padding-right: 12px;
+            text-align: left;
+        }
+
+        .cell {
+            background: var(--panel-2);
+            border-radius: 8px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            min-width: 52px;
+            height: 30px;
+        }
+
+        .cell.allfree {
+            background: var(--free-soft);
+            box-shadow: 0 0 0 1px var(--free) inset;
+        }
+
+        .cell.nogroup {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .pip {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            border: 1.4px solid var(--line);
+            background: transparent;
+        }
+
+        .windows {
+            margin-top: 38px;
+        }
+
+        .windows h2 {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 18px;
+            margin: 0 0 16px;
+        }
+
+        .wrow {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 16px;
+            padding: 12px 0;
+            border-top: 1px solid var(--line);
+            align-items: center;
+        }
+
+        .wrow:last-child {
+            border-bottom: 1px solid var(--line);
+        }
+
+        .wrow .d {
+            font-family: 'Fraunces', serif;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            background: var(--free-soft);
+            border: 1px solid var(--free);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 11px;
+            border-radius: 20px;
+        }
+
+        .none {
+            color: var(--muted);
+            font-size: 12.5px;
+            font-style: italic;
+        }
+
+        footer {
+            margin-top: 46px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 12.5px;
+            line-height: 1.7;
+            max-width: 70ch;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="kicker">Group meeting finder</div>
+        <h1>Pick who's meeting, see when they're all free</h1>
+        <p class="lede">Select people from the five combined timetables to form a group. MS&nbsp;Teams classes count as
+            free time. Save groups to come back to them — saved on this device only.</p>
+
+        <div class="layout">
+            <aside class="panel">
+                <h2>Members</h2>
+                <div class="members" id="members"></div>
+
+                <h2>Save this group</h2>
+                <div class="groupform">
+                    <input id="groupNameInput" type="text" placeholder="Group name…" maxlength="30">
+                    <button class="btn" id="saveGroupBtn">Save</button>
+                </div>
+
+                <h2>Saved groups</h2>
+                <div class="saved" id="saved"></div>
+            </aside>
+
+            <main class="panel results">
+                <div class="top-row">
+                    <div class="group-label" id="groupLabel"></div>
+                    <div class="stat">
+                        <div class="num" id="totalFree">–</div>
+                        <div class="lbl">hours a week everyone in this group is free</div>
+                    </div>
+                </div>
+
+                <div class="heat">
+                    <table>
+                        <thead>
+                            <tr id="headRow">
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="heatBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="windows">
+                    <h2>Common break windows</h2>
+                    <div id="wlist"></div>
+                </div>
+            </main>
+        </div>
+
+        <footer>
+            <strong>Method:</strong> an hour counts as free for a person only when they have no in-person class
+            overlapping it; MS&nbsp;Teams sessions never count as busy. Days are aligned by weekday, since the source
+            timetables covered different sample weeks (Aug vs Sept 2026). Saved groups use this browser's local storage,
+            so they're only visible on this device.
+        </footer>
+    </div>
+
+    <script>
+        const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+        const PEOPLE = [
+            { name: "Abishek", color: "#E4785B" },
+            { name: "Aditya", color: "#4F8FBF" },
+            { name: "Anant Modi", color: "#C9A227" },
+            { name: "Khushi", color: "#8B6FC9" },
+            { name: "Aanya", color: "#5C8A5C" }
+        ];
+        const BUSY = {
+            "Monday": [
+                [1, 0, 0, 0, 0], [1, 0, 0, 0, 1], [1, 0, 1, 1, 0], [0, 1, 1, 1, 1], [0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0], [1, 1, 0, 1, 0], [1, 0, 0, 0, 1], [0, 1, 0, 0, 1], [0, 1, 0, 0, 1]
+            ],
+            "Tuesday": [
+                [0, 0, 1, 0, 0], [0, 1, 1, 0, 0], [1, 0, 1, 1, 0], [1, 0, 1, 1, 1], [0, 1, 0, 1, 1],
+                [0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 1, 1, 1, 1], [1, 0, 0, 1, 1], [1, 0, 0, 0, 0]
+            ],
+            "Wednesday": [
+                [0, 0, 1, 0, 1], [0, 0, 0, 0, 1], [0, 0, 0, 1, 0], [0, 1, 1, 1, 0], [1, 1, 0, 1, 1],
+                [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [1, 0, 1, 0, 0], [1, 0, 0, 1, 1], [1, 1, 0, 0, 0]
+            ],
+            "Thursday": [
+                [1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 1], [1, 0, 1, 1, 1], [0, 1, 1, 0, 0],
+                [0, 0, 0, 0, 0], [1, 0, 0, 0, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 1], [0, 1, 0, 1, 1]
+            ],
+            "Friday": [
+                [0, 1, 1, 0, 0], [0, 0, 1, 0, 1], [1, 0, 0, 0, 1], [1, 1, 0, 0, 1], [0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0], [1, 1, 0, 1, 0], [0, 0, 0, 1, 0], [0, 0, 0, 1, 0], [0, 0, 0, 1, 0]
+            ],
+            "Saturday": [
+                [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 0, 0], [1, 1, 1, 0, 0],
+                [0, 0, 0, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 0], [0, 0, 0, 1, 0]
+            ]
+        };
+        const DAYS = Object.keys(BUSY);
+        const STORAGE_KEY = 'group-free-finder-v1';
+
+        let selected = new Set([0, 1, 2, 3, 4]); // indices into PEOPLE, default everyone
+
+        function loadGroups() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) { return []; }
+        }
+        function saveGroups(groups) {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(groups)); } catch (e) { }
+        }
+
+        function renderMembers() {
+            const el = document.getElementById('members');
+            el.innerHTML = PEOPLE.map((p, i) => `
+    <label class="m-row">
+      <input type="checkbox" data-i="${i}" ${selected.has(i) ? 'checked' : ''}>
+      <span class="dot" style="background:${p.color}"></span>
+      <span class="name">${p.name}</span>
+    </label>
+  `).join('');
+            el.querySelectorAll('input[type=checkbox]').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const i = +cb.dataset.i;
+                    if (cb.checked) selected.add(i); else selected.delete(i);
+                    render();
+                });
+            });
+        }
+
+        function mergeFreeWindows(counts) {
+            const windows = []; let start = null;
+            for (let i = 0; i <= counts.length; i++) {
+                const free = i < counts.length && counts[i] === 0;
+                if (free && start === null) start = i;
+                if (!free && start !== null) { windows.push([HOURS[start], (HOURS[i - 1] ?? HOURS[HOURS.length - 1]) + 1]); start = null; }
+            }
+            return windows;
+        }
+
+        function renderGrid() {
+            const memberIdx = [...selected].sort((a, b) => a - b);
+            document.getElementById('groupLabel').innerHTML = memberIdx.length
+                ? `Showing overlap for <b>${memberIdx.map(i => PEOPLE[i].name).join(', ')}</b>`
+                : `Select at least one person`;
+
+            const headRow = document.getElementById('headRow');
+            headRow.innerHTML = '<th></th>' + HOURS.map(h => `<th>${h}:00</th>`).join('');
+
+            const body = document.getElementById('heatBody');
+            body.innerHTML = '';
+            let totalFree = 0;
+            const wlistEl = document.getElementById('wlist');
+            wlistEl.innerHTML = '';
+
+            DAYS.forEach(day => {
+                const hours = BUSY[day];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="dayname">${day}</td>`;
+                const counts = [];
+                hours.forEach(bits => {
+                    const busyHere = memberIdx.filter(i => bits[i] === 1);
+                    counts.push(busyHere.length);
+                    const td = document.createElement('td');
+                    const cellCls = memberIdx.length === 0 ? 'nogroup' : (busyHere.length === 0 ? 'allfree' : '');
+                    const pips = memberIdx.map(i => {
+                        const on = bits[i] === 1;
+                        return `<span class="pip" style="${on ? `border-color:transparent;background:${PEOPLE[i].color}` : ''}"></span>`;
+                    }).join('');
+                    const title = memberIdx.length === 0 ? '' : (busyHere.length === 0 ? `${day}: group fully free` : `${day}: busy — ${busyHere.map(i => PEOPLE[i].name).join(', ')}`);
+                    td.innerHTML = `<div class="cell ${cellCls}" title="${title}">${pips}</div>`;
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+
+                const freeCount = memberIdx.length === 0 ? 0 : counts.filter(c => c === 0).length;
+                totalFree += freeCount;
+                const windows = memberIdx.length === 0 ? [] : mergeFreeWindows(counts);
+                const row = document.createElement('div');
+                row.className = 'wrow';
+                const chipsHtml = windows.length
+                    ? windows.map(([s, e]) => `<span class="chip">${s}:00–${e}:00</span>`).join('')
+                    : `<span class="none">No common break</span>`;
+                row.innerHTML = `<div class="d">${day}</div><div class="chips">${chipsHtml}</div>`;
+                wlistEl.appendChild(row);
+            });
+
+            document.getElementById('totalFree').textContent = memberIdx.length ? totalFree : '–';
+        }
+
+        function renderSaved() {
+            const groups = loadGroups();
+            const el = document.getElementById('saved');
+            if (!groups.length) { el.innerHTML = `<div class="empty">No saved groups yet</div>`; return; }
+            el.innerHTML = groups.map((g, idx) => `
+    <div class="g-row">
+      <span class="g-name" data-idx="${idx}">${g.name}</span>
+      <button data-del="${idx}" title="Delete">×</button>
+    </div>
+  `).join('');
+            el.querySelectorAll('.g-name').forEach(elm => {
+                elm.addEventListener('click', () => {
+                    const g = groups[+elm.dataset.idx];
+                    selected = new Set(g.members);
+                    renderMembers();
+                    render();
+                });
+            });
+            el.querySelectorAll('button[data-del]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const groups2 = loadGroups();
+                    groups2.splice(+btn.dataset.del, 1);
+                    saveGroups(groups2);
+                    renderSaved();
+                });
+            });
+        }
+
+        document.getElementById('saveGroupBtn').addEventListener('click', () => {
+            const input = document.getElementById('groupNameInput');
+            const name = input.value.trim();
+            if (!name || selected.size === 0) return;
+            const groups = loadGroups();
+            groups.push({ name, members: [...selected] });
+            saveGroups(groups);
+            input.value = '';
+            renderSaved();
+        });
+
+        function render() { renderGrid(); }
+
+        renderMembers();
+        renderSaved();
+        render();
+    </script>
+</body>
+
+</html>
